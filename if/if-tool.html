@@ -1,0 +1,88 @@
+<div style="font-family: 'Segoe UI', Tahoma, sans-serif; padding: 25px; border: 2px solid #0070f3; border-radius: 15px; max-width: 500px; margin: 20px auto; background: #fafafa; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+  <h2 style="color: #0070f3; text-align: center; margin-top: 0;">Taxtifly Logic Builder</h2>
+  
+  <div id="conditions-container">
+    <div class="condition-row" style="margin-bottom: 15px; padding: 10px; border-left: 4px solid #0070f3; background: #fff; position: relative;">
+      <label><b>Condition 1:</b></label>
+      <input type="text" class="cond" placeholder="e.g. A1 > 80" style="width: 95%; margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+      <label><b>Result:</b></label>
+      <input type="text" class="res" placeholder="e.g. 'Excellent'" style="width: 95%; margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button onclick="addRow()" style="flex: 2; background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold;">+ Add Condition</button>
+    <button onclick="location.reload()" style="flex: 1; background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">Reset</button>
+  </div>
+  
+  <div style="background: #fff; padding: 10px; border-left: 4px solid #dc3545; margin-bottom: 20px;">
+    <label><b>Otherwise (Final Value):</b></label>
+    <input type="text" id="finalVal" placeholder="e.g. 'Average'" style="width: 95%; margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+  </div>
+
+  <button onclick="buildNestedIF()" style="width: 100%; background: #0070f3; color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">Generate Formula</button>
+  
+  <div style="margin-top: 25px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong>Generated Excel Formula:</strong>
+        <button onclick="copyToClipboard()" id="copyBtn" style="background: #efefef; border: 1px solid #ccc; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 12px;">Copy Formula</button>
+    </div>
+    <textarea id="output" style="width: 100%; height: 80px; margin-top: 10px; background: #333; color: #4af626; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 14px; border: none; resize: none;" readonly></textarea>
+  </div>
+</div>
+
+<script>
+function addRow() {
+  const container = document.getElementById('conditions-container');
+  const rowCount = document.querySelectorAll('.condition-row').length + 1;
+  const div = document.createElement('div');
+  div.className = 'condition-row';
+  div.style = "margin-bottom: 15px; padding: 10px; border-left: 4px solid #0070f3; background: #fff;";
+  div.innerHTML = `
+    <label><b>Condition ${rowCount}:</b></label>
+    <input type="text" class="cond" placeholder="e.g. A1 > 60" style="width: 95%; margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+    <label><b>Result:</b></label>
+    <input type="text" class="res" placeholder="e.g. 'Good'" style="width: 95%; margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+  `;
+  container.appendChild(div);
+}
+
+function buildNestedIF() {
+  const conds = document.querySelectorAll('.cond');
+  const ress = document.querySelectorAll('.res');
+  const final = document.getElementById('finalVal').value || "0";
+  
+  let formula = "";
+  let closingBrackets = "";
+
+  for (let i = 0; i < conds.length; i++) {
+    let c = conds[i].value || "TRUE";
+    let r = ress[i].value || "Result";
+    formula += `IF(${c}, "${r}", `;
+    closingBrackets += ")";
+  }
+
+  formula += `"${final}"${closingBrackets}`;
+  document.getElementById('output').value = "=" + formula;
+}
+
+function copyToClipboard() {
+  const output = document.getElementById('output');
+  const btn = document.getElementById('copyBtn');
+  
+  if(output.value === "") return;
+  
+  output.select();
+  document.execCommand('copy');
+  
+  btn.innerText = "Copied!";
+  btn.style.background = "#28a745";
+  btn.style.color = "white";
+  
+  setTimeout(() => {
+    btn.innerText = "Copy Formula";
+    btn.style.background = "#efefef";
+    btn.style.color = "black";
+  }, 2000);
+}
+</script>
