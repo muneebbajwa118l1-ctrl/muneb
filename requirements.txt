@@ -1,4 +1,2 @@
 flask
-user-agents
-gunicorn
-markupsafe
+requests
